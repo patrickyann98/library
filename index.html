@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Draft</title>
+</head>
+<body>
+  <h1>Draft</h1>
+  <div class="draft">
+  </div>
+  <script>
+    function Book(title, author, year, pages, read) {
+      this.title = title;
+      this.author = author;
+      this.year = year;
+      this.pages = pages;
+      this.read = read;
+      this.info = function() {
+        return `${this.title} by ${this.author}, published in ${this.year} and I ${this.read ? 'have read it' : 'have not read it yet'}.`;
+      };
+    }
+  const draft = document.querySelector('.draft');
+
+  function addToDraft(book) {
+    const p = document.createElement('p');
+    p.textContent = book.info();
+    draft.appendChild(p);
+  }
+
+  const library = [
+  new Book('The Great Gatsby', 'F. Scott Fitzgerald', 1925, 218, true),
+  new Book('The Hobbit', 'J.R.R. Tolkien', 1937, 310, false),
+  new Book('1984', 'George Orwell', 1949, 328, true),
+  ];
+
+  library.forEach(addToDraft);
+  </script>
+</body>
+</html>
