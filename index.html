@@ -3,38 +3,168 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Draft</title>
+  <title>Library</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .library {
+      margin-top: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    tbody td:first-child {
+      font-weight: bold;
+    }
+    td button {
+      margin-right: 4px;
+    }
+    #add-book-button {
+      margin-top: 16px;
+    }
+  </style>
 </head>
 <body>
-  <h1>Draft</h1>
-  <div class="draft">
+  <h1>Library</h1>
+  <div class="library">
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Author</th>
+          <th>Year</th>
+          <th>Pages</th>
+          <th>Id</th>
+          <th>Read</th>
+          <th>Info</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="library-table-body">
+        <!-- Book rows will be added here -->
+      </tbody>
+    </table>
+    <button id="add-book-button" onclick="addUsersBook()">Add Book</button>
   </div>
+
   <script>
-    function Book(title, author, year, pages, read) {
-      this.title = title;
-      this.author = author;
-      this.year = year;
-      this.pages = pages;
-      this.read = read;
-      this.info = function() {
+    class Book {
+      constructor(title, author, year, pages, read) {
+        this.id = crypto.randomUUID();
+        this.title = title;
+        this.author = author;
+        this.year = year;
+        this.pages = pages;
+        this.read = read;
+      }
+      
+
+      info() {
         return `${this.title} by ${this.author}, published in ${this.year} and I ${this.read ? 'have read it' : 'have not read it yet'}.`;
-      };
+      }
+
+      readStatus() {
+        return this.read ? 'Yes' : 'No';
+      }
+
+      toggleRead() {
+        this.read = !this.read;
+      }
     }
-  const draft = document.querySelector('.draft');
 
-  function addToDraft(book) {
-    const p = document.createElement('p');
-    p.textContent = book.info();
-    draft.appendChild(p);
-  }
+    const library = [];
+    const tableBody = document.querySelector('#library-table-body');
 
-  const library = [
-  new Book('The Great Gatsby', 'F. Scott Fitzgerald', 1925, 218, true),
-  new Book('The Hobbit', 'J.R.R. Tolkien', 1937, 310, false),
-  new Book('1984', 'George Orwell', 1949, 328, true),
-  ];
+    // Only draws one row. Does not touch the array.
+    function renderBook(book) {
+      const row = document.createElement('tr');
 
-  library.forEach(addToDraft);
+      const values = [
+        book.title,
+        book.author,
+        book.year,
+        book.pages,
+        book.id,
+        book.readStatus(),
+        book.info(),
+      ];
+      values.forEach(value => {
+        const cell = document.createElement('td');
+        cell.textContent = value;
+        row.appendChild(cell);
+      });
+
+      const actionCell = document.createElement('td');
+
+      const toggleButton = document.createElement('button');
+      toggleButton.textContent = 'Toggle read';
+      toggleButton.addEventListener('click', () => {
+        book.toggleRead();
+        renderLibrary();
+      });
+
+      const deleteButton = document.createElement('button');
+      deleteButton.textContent = 'Delete';
+      deleteButton.addEventListener('click', () => deleteBook(book.id));
+
+      actionCell.append(toggleButton, deleteButton);
+      row.appendChild(actionCell);
+
+      tableBody.appendChild(row);
+    }
+
+    // Clears the table and draws every book in the array.
+    function renderLibrary() {
+      tableBody.innerHTML = '';
+      library.forEach(renderBook);
+    }
+
+    // Saves the book and draws it.
+    function addBookToLibrary(book) {
+      library.push(book);
+      renderBook(book);
+    }
+
+    function deleteBook(bookId) {
+      const bookIndex = library.findIndex(book => book.id === bookId);
+      if (bookIndex !== -1) {
+        library.splice(bookIndex, 1);
+        renderLibrary();
+      }
+    }
+
+    function addUsersBook() {
+      const title = prompt('Enter the book title:');
+      const author = prompt('Enter the book author:');
+      const year = parseInt(prompt('Enter the publication year:'), 10);
+      const pages = parseInt(prompt('Enter the number of pages:'), 10);
+      const read = confirm('Have you read this book? Click OK for Yes, Cancel for No.');
+
+      if (title && author && !isNaN(year) && !isNaN(pages)) {
+        addBookToLibrary(new Book(title, author, year, pages, read));
+      } else {
+        alert('Please provide valid inputs for all fields.');
+      }
+    }
+
+    addBookToLibrary(new Book('The Great Gatsby', 'F. Scott Fitzgerald', 1925, 218, true));
+    addBookToLibrary(new Book('The Hobbit', 'J.R.R. Tolkien', 1937, 310, false));
+    addBookToLibrary(new Book('1984', 'George Orwell', 1949, 328, true));
+    
   </script>
 </body>
 </html>
